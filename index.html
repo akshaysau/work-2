@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en"> 
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <title>Calculator</title> 
+  <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: repeating-radial-gradient(circle, #ff00ee, #00fff7 50%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .display {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 2.5em;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: right;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 45px;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .operator {
+            background: rgba(255, 165, 0, 0.7);
+        }
+
+        .operator:hover {
+            background: rgba(255, 165, 0, 0.9);
+        }
+
+        .equals {
+            background: rgba(46, 204, 113, 0.7);
+        }
+
+        .equals:hover {
+            background: rgba(46, 204, 113, 0.9);
+        }
+
+        .clear {
+            background: rgba(231, 76, 60, 0.7);
+        }
+
+        .clear:hover {
+            background: rgba(231, 76, 60, 0.9);
+        }
+
+        .zero {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 480px) {
+            .calculator {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            .display {
+                font-size: 2em;
+                padding: 15px;
+                min-height: 60px;
+            }
+            
+            button {
+                padding: 15px;
+                font-size: 1.1em;
+            }
+        }
+    </style> 
+ </head> 
+ <body> 
+  <div class="calculator"> 
+   <div class="display" id="display">
+     0 
+   </div> 
+   <div class="buttons"> <button class="clear" onclick="clearDisplay()">C</button> 
+    <button class="clear" onclick="clearEntry()">CE</button> 
+    <button class="operator" onclick="appendToDisplay('/')">/</button> 
+    <button class="operator" onclick="appendToDisplay('*')">×</button>
+    <button onclick="appendToDisplay('7')">7</button> 
+    <button onclick="appendToDisplay('8')">8</button>
+    <button onclick="appendToDisplay('9')">9</button> 
+    <button class="operator" onclick="appendToDisplay('-')">-</button> 
+    <button onclick="appendToDisplay('4')">4</button> 
+    <button onclick="appendToDisplay('5')">5</button> 
+    <button onclick="appendToDisplay('6')">6</button> 
+    <button class="operator" onclick="appendToDisplay('+')">+</button>
+    <button onclick="appendToDisplay('1')">1</button>
+    <button onclick="appendToDisplay('2')">2</button> 
+    <button onclick="appendToDisplay('3')">3</button> 
+    <button class="equals" onclick="calculate()" rowspan="2">=</button>
+    <button class="zero" onclick="appendToDisplay('0')">0</button> 
+    <button onclick="appendToDisplay('.')">.</button> 
+   </div> 
+  </div> 
+  <script>
+        let display = document.getElementById('display');
+        let currentInput = '0';
+        let operator = '';
+        let previousInput = '';
+        let waitingForOperand = false;
+
+        function updateDisplay() {
+            display.textContent = currentInput;
+        }
+
+        function appendToDisplay(value) {
+            if (waitingForOperand) {
+                currentInput = value;
+                waitingForOperand = false;
+            } else {
+                if (currentInput === '0') {
+                    currentInput = value;
+                } else {
+                    currentInput += value;
+                }
+            }
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            currentInput = '0';
+            operator = '';
+            previousInput = '';
+            waitingForOperand = false;
+            updateDisplay();
+        }
+
+        function clearEntry() {
+            currentInput = '0';
+            updateDisplay();
+        }
+
+        function calculate() {
+            let result;
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+
+            if (isNaN(prev) || isNaN(current)) {
+                return;
+            }
+
+            switch (operator) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    if (current === 0) {
+                        currentInput = 'Error';
+                        updateDisplay();
+                        return;
+                    }
+                    result = prev / current;
+                    break;
+                default:
+                    return;
+            }
+
+            currentInput = result.toString();
+            operator = '';
+            previousInput = '';
+            waitingForOperand = true;
+            updateDisplay();
+        }
+
+        // Handle operator input
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('button')) {
+                const buttonText = e.target.textContent;
+                
+                if (['+', '-', '×', '/'].includes(buttonText)) {
+                    if (operator && !waitingForOperand) {
+                        calculate();
+                    }
+                    
+                    previousInput = currentInput;
+                    operator = buttonText === '×' ? '*' : buttonText;
+                    waitingForOperand = true;
+                }
+            }
+        });
+
+        // Keyboard support
+        document.addEventListener('keydown', function(e) {
+            if (e.key >= '0' && e.key <= '9') {
+                appendToDisplay(e.key);
+            } else if (e.key === '.') {
+                if (currentInput.indexOf('.') === -1) {
+                    appendToDisplay('.');
+                }
+            } else if (['+', '-', '*', '/'].includes(e.key)) {
+                if (operator && !waitingForOperand) {
+                    calculate();
+                }
+                previousInput = currentInput;
+                operator = e.key;
+                waitingForOperand = true;
+            } else if (e.key === 'Enter' || e.key === '=') {
+                calculate();
+            } else if (e.key === 'Escape') {
+                clearDisplay();
+            } else if (e.key === 'Backspace') {
+                if (currentInput.length > 1) {
+                    currentInput = currentInput.slice(0, -1);
+                } else {
+                    currentInput = '0';
+                }
+                updateDisplay();
+            }
+        });
+    </script> 
+ 
+</body>
+</html>
